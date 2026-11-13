@@ -3,7 +3,7 @@
 //
 // Settings (Cloudflare Pages > Settings > Variables and Secrets):
 //   RESEND_API_KEY   (secret)
-//   EMAIL_FROM       e.g. "Mad Max Website <requests@madmaxcustomknifehandles.com>" (domain verified in Resend)
+//   EMAIL_FROM       e.g. "Mad Max Website <requests@madmaxcustomhandles.com>" (domain verified in Resend)
 //   ALERT_EMAIL_TO   madmaxcustomknifehandles@gmail.com  (comma-separate to add more, e.g. a copy to Timothy)
 //   TURNSTILE_SECRET (optional, enables bot check)
 // Binding (optional): KV namespace REQUESTS — rate limiting, duplicate protection, 90-day log

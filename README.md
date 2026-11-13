@@ -34,6 +34,6 @@ The form reports success only after the email is accepted by Resend; otherwise i
 
 ## Before launch
 - [x] Facebook group link
-- [ ] Final domain (`SITE_URL`) and `EMAIL_FROM`
+- [x] Domain: madmaxcustomhandles.com (`EMAIL_FROM` e.g. `Mad Max Website <requests@madmaxcustomhandles.com>`)
 - [ ] Confirm "Three steps" wording with Joseph and Mandi Jo
 - [ ] Swap in real handle photos

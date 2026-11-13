@@ -19,7 +19,7 @@ FACEBOOK_LABEL = "Mad Max: Custom Knife Handles Facebook group"
 LOCATION = "Dover, Pennsylvania"
 HOURS = [("Monday&ndash;Saturday", "9:00 AM &ndash; 5:00 PM"), ("Sunday", "Closed")]
 HOURS_NOTE = "Online requests can be sent 24 hours a day."
-SITE_URL = "https://madmaxcustomknifehandles.com"  # TODO: final domain (used for social previews)
+SITE_URL = "https://madmaxcustomhandles.com"
 
 
 # "Coming soon" cards shown until the first design is added through /admin: (line-art style)
