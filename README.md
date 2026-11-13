@@ -33,7 +33,7 @@ Until the first design is added, the site shows the "Photo coming soon" cards.
 The form reports success only after the email is accepted by Resend; otherwise it tells the visitor to call 717-916-0074. The Gmail app on their phones gives the instant phone alert.
 
 ## Before launch
-- [ ] Facebook group link (`FACEBOOK_URL` in build.py)
+- [x] Facebook group link
 - [ ] Final domain (`SITE_URL`) and `EMAIL_FROM`
 - [ ] Confirm "Three steps" wording with Joseph and Mandi Jo
 - [ ] Swap in real handle photos
