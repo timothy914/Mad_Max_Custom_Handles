@@ -24,7 +24,7 @@ Until the first design is added, the site shows the "Photo coming soon" cards.
 6. Admin sign-in (Zero Trust, free plan):
    - Zero Trust → Settings → Authentication: One-time PIN is on by default.
    - Access → Applications → Add → Self-hosted. Domain: the site's domain, paths `admin` and `api/admin` (add both as destinations). Session: 1 month.
-   - Policy "Owners": Allow, Include → Emails: Joseph's Gmail, Mandi Jo's email (and yours).
+   - Policy "Owners": Allow, Include → Emails: madmaxcustomknifehandles@gmail.com (shared by Joseph and Mandi Jo) and yours.
    - Copy the application's **AUD tag**.
    - Pages variables: `ACCESS_TEAM_DOMAIN` (e.g. `yourteam.cloudflareaccess.com`), `ACCESS_AUD` (the AUD tag), `ADMIN_EMAILS` (same emails, comma-separated).
    - The admin API checks the Access token itself as well, so it stays locked even if the Access rule is changed by mistake. Do not set `ACCESS_CERTS_URL` in production (local testing only).
