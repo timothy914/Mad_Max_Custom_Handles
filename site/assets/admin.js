@@ -21,7 +21,12 @@
     return fetch(url, { method: method, body: body, credentials: "same-origin",
       headers: isJson ? { "Content-Type": "application/json" } : undefined })
       .then(function (r) {
-        if (r.status === 401) { location.reload(); throw new Error("Please sign in again."); }
+        if (r.status === 401) { // session ended: reload once so Cloudflare Access shows the sign-in; never loop
+          var tried = false; try { tried = sessionStorage.getItem("mm-reauth") === "1"; sessionStorage.setItem("mm-reauth", "1"); } catch (e) {}
+          if (!tried && /madmaxcustomhandles\.com$/.test(location.hostname)) location.reload();
+          throw new Error("You're not signed in. Open madmaxcustomhandles.com/admin to sign in with your email code.");
+        }
+        try { sessionStorage.removeItem("mm-reauth"); } catch (e) {}
         return r.json().catch(function () { return { ok: false }; });
       })
       .then(function (j) { if (!j.ok) throw new Error(j.error || "Something went wrong. Please try again."); return j; });
