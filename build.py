@@ -122,7 +122,7 @@ def body_home(asset):
 </div></section>
 <section class="section alt"><div class="wrap">
   {head_block("Featured work", "From the Bench")}
-  <div class="grid four">{featured}</div>
+  <div class="grid four" id="featured-grid">{featured}</div>
   <p class="center" style="margin:36px 0 0"><a class="btn btn-sm" href="{{work}}">See all work &rarr;</a></p>
 </div></section>
 <section class="section"><div class="wrap">
@@ -136,15 +136,13 @@ def body_home(asset):
 
 
 def body_work(asset):
-    chips = '<button class="chip" type="button" data-filter="all" aria-pressed="true">All</button>' + "".join(
-        f'<button class="chip" type="button" data-filter="{c}" aria-pressed="false">{c}</button>' for c in CATEGORIES)
     return f'''
 <section class="page-hero"><div class="wrap">
   <p class="kicker">The work</p><h1>Handles From the Bench</h1><hr class="rule">
   <p class="lead">Custom. Durable. One of a kind. Every handle is built for one blade.</p>
 </div></section>
 <section class="section"><div class="wrap">
-  <div class="filters" role="group" aria-label="Filter by blade type">{chips}</div>
+  <div class="filters" id="filters" role="group" aria-label="Filter by collection" hidden></div>
   <div class="grid" id="work-grid">{"".join(piece(p, asset) for p in PROJECTS)}</div>
 </div></section>'''
 
@@ -233,6 +231,7 @@ def chrome(slug, inner, links, asset, preview):
   <button class="menu-btn" type="button" aria-controls="nav" aria-expanded="false" aria-label="Menu"><span></span></button>
 </div></header>
 <main id="main">{inner}</main>
+<div class="modal" id="piece-modal" hidden><div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="pm-title"><button class="modal-x" type="button" aria-label="Close">&times;</button><div class="pm-body"></div></div></div>
 {cta(slug)}
 <footer class="site-footer"><div class="wrap">
   <div class="foot">
@@ -280,7 +279,48 @@ def build_prod():
         html += f'\n<script src="{a}site.js" defer></script>\n</body></html>\n'
         out = ROOT / "site" / ("index.html" if slug == "home" else f"{slug}.html")
         out.write_text(fill(html, links))
+    (ROOT / "site/admin").mkdir(exist_ok=True)
+    (ROOT / "site/admin/index.html").write_text(build_admin())
     print("built site/")
+
+
+ADMIN = '''<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Manage designs | Mad Max Custom Knife Handles</title>
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#050505">
+<link rel="icon" href="{asset}favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Barlow:wght@400;500&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+{css}
+</head><body class="admin-body">
+{pbar}
+<header class="site-header"><div class="wrap">
+  <a class="brand" href="{home}"><img src="{asset}logo-120.webp" alt="" width="46" height="48"><span><b>MAD MAX</b><small>Manage designs</small></span></a>
+  <div class="who"><span id="who"></span><a class="btn btn-sm" href="{home}" target="_blank" rel="noopener">View site</a>{logout}</div>
+</div></header>
+<main class="wrap admin-main" id="admin"><p class="hint">Loading your designs&hellip;</p></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+{js}
+</body></html>
+'''
+
+
+def build_admin(preview=False):
+    a = "" if preview else "/assets/"
+    if preview:
+        css = "<style>" + (ROOT / "site/assets/site.css").read_text() + (ROOT / "site/assets/admin.css").read_text() + "</style>"
+        js = "<script>window.MM_DEMO=true;</script><script>" + (ROOT / "site/assets/admin.js").read_text() + "</script>"
+        pbar = ('<div style="background:var(--red);color:#fff;text-align:center;font:600 12px/1.4 var(--cond);letter-spacing:.16em;'
+                'text-transform:uppercase;padding:9px 12px">Demo of the admin page &middot; Try adding a design with any photo &middot; Nothing is saved</div>')
+        logout = ""
+        home = "#"
+    else:
+        css = f'<link rel="stylesheet" href="{a}site.css"><link rel="stylesheet" href="{a}admin.css">'
+        js = f'<script src="{a}admin.js" defer></script>'
+        pbar, home = "", "/"
+        logout = '<a class="btn btn-sm" href="/cdn-cgi/access/logout">Sign out</a>'
+    return ADMIN.format(asset=a, css=css, js=js, pbar=pbar, home=home, logout=logout)
 
 
 def build_preview():
@@ -304,7 +344,13 @@ window.addEventListener('hashchange',show);show();})();</script></body></html>''
     out = ROOT / "preview"
     out.mkdir(exist_ok=True)
     (out / "index.html").write_text(html)
-    print("built preview/index.html")
+    adm = build_admin(preview=True)
+    for f in sorted(adir.iterdir()):
+        if f.suffix in (".webp", ".png"):
+            mime = {".webp": "image/webp", ".png": "image/png"}[f.suffix]
+            adm = adm.replace(f'"{f.name}"', f'"data:{mime};base64,{base64.b64encode(f.read_bytes()).decode()}"')
+    (out / "admin.html").write_text(adm)
+    print("built preview/index.html and preview/admin.html")
 
 
 if __name__ == "__main__":

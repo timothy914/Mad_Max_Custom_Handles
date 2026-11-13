@@ -204,3 +204,26 @@ textarea{min-height:150px;resize:vertical}
 }
 @media (max-width:480px){.grid.four{grid-template-columns:1fr}.wrap{padding:0 20px}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* gallery cards from admin */
+.piece button.ph{border:0;padding:0;cursor:zoom-in;width:100%;background:#151515}
+.piece.live .ph img{transition:transform .4s}
+.piece.live .ph:hover img{transform:scale(1.04)}
+.badge{position:absolute;top:12px;left:12px;font:600 11px/1 var(--cond);letter-spacing:.16em;text-transform:uppercase;color:#fff;background:var(--red);padding:6px 9px}
+.badge.sold{background:#2b2b2b;color:var(--silver)}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.86);display:grid;place-items:center;padding:20px;overflow:auto}
+.modal[hidden]{display:none}
+.modal-box{position:relative;background:#111;border:1px solid var(--line);width:min(1000px,100%);display:grid;grid-template-columns:1.25fr 1fr;max-height:calc(100vh - 40px);overflow:auto}
+.pm-body{display:contents}
+.pm-photo{grid-row:span 2;background:#0a0a0a;display:grid;place-items:center;min-height:320px}
+.pm-photo img{width:100%;height:100%;max-height:80vh;object-fit:contain}
+.pm-thumbs{display:flex;gap:8px;padding:16px 26px 0;flex-wrap:wrap;grid-column:2}
+.pm-thumbs button{width:64px;height:64px;padding:0;border:1px solid #3a3a3a;background:none;cursor:pointer}
+.pm-thumbs button[aria-current]{border-color:var(--red)}
+.pm-thumbs img{width:100%;height:100%;object-fit:cover}
+.pm-text{padding:30px 28px;grid-column:2}
+.pm-text .kicker{font-size:11.5px;letter-spacing:.2em}
+.pm-text h2{font-size:28px}
+.pm-status{font:600 15px var(--cond);letter-spacing:.14em;text-transform:uppercase;color:var(--white)}
+.modal-x{position:absolute;top:10px;right:10px;z-index:2;width:40px;height:40px;border-radius:50%;border:1px solid #444;background:#000a;color:#fff;font-size:22px;cursor:pointer}
+@media (max-width:760px){.modal{padding:0}.modal-box{grid-template-columns:1fr;max-height:100vh;height:100%}.pm-photo{grid-row:auto;min-height:0}.pm-thumbs,.pm-text{grid-column:1}.pm-text{padding:22px 20px 34px}}

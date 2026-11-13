@@ -9,15 +9,71 @@
     nav.addEventListener("click", function (e) { if (e.target.tagName === "A") { nav.classList.remove("open"); b.setAttribute("aria-expanded", false); } });
   });
 
-  // Work filters
-  var grid = document.getElementById("work-grid");
-  document.querySelectorAll(".chip").forEach(function (c) {
-    c.addEventListener("click", function () {
-      var f = c.dataset.filter;
-      document.querySelectorAll(".chip").forEach(function (x) { x.setAttribute("aria-pressed", x === c); });
-      grid.querySelectorAll(".piece").forEach(function (p) { p.hidden = f !== "all" && p.dataset.cat !== f; });
+  // Gallery: designs added through /admin
+  var workGrid = document.getElementById("work-grid"), featGrid = document.getElementById("featured-grid");
+  var modal = document.getElementById("piece-modal"), pieces = [], cols = {};
+  function esc(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function card(p) {
+    var tags = [cols[p.collection], p.blade].filter(Boolean).map(function (t) { return '<span class="tag">' + esc(t) + "</span>"; }).join("");
+    var badge = p.status === "Sold" ? '<span class="badge sold">Sold</span>' : p.status === "Available" ? '<span class="badge">Available' + (p.price ? " &middot; " + esc(p.price) : "") + "</span>" : "";
+    return '<article class="piece live" data-col="' + esc(p.collection || "none") + '"><button type="button" class="ph" data-id="' + p.id + '" aria-label="View ' + esc(p.name) + '">' +
+      '<img src="/photos/' + p.photos[0] + '-th.jpg" alt="' + esc(p.name) + '" loading="lazy">' + badge + "</button>" +
+      '<div class="meta"><h3>' + esc(p.name) + '</h3><div class="tags">' + tags + "</div></div></article>";
+  }
+  function bindCards(root) { root.querySelectorAll("button.ph").forEach(function (b) { b.onclick = function () { openPiece(b.dataset.id); }; }); }
+  function openPiece(id) {
+    var p = pieces.find(function (x) { return x.id === id; }); if (!p || !modal) return;
+    var body = modal.querySelector(".pm-body");
+    var meta = [cols[p.collection], p.blade, p.material].filter(Boolean).map(esc).join(" &middot; ");
+    var status = p.status === "Sold" ? "Sold" : p.status === "Available" ? "Available" + (p.price ? " &middot; " + esc(p.price) : "") : (p.price ? esc(p.price) : "");
+    body.innerHTML = '<div class="pm-photo"><img id="pm-img" src="/photos/' + p.photos[0] + '.jpg" alt="' + esc(p.name) + '"></div>' +
+      (p.photos.length > 1 ? '<div class="pm-thumbs">' + p.photos.map(function (ph, i) { return '<button type="button" data-ph="' + ph + '"' + (i ? "" : ' aria-current="true"') + '><img src="/photos/' + ph + '-th.jpg" alt="Photo ' + (i + 1) + '"></button>'; }).join("") + "</div>" : "") +
+      '<div class="pm-text"><p class="kicker">' + meta + '</p><h2 id="pm-title">' + esc(p.name) + "</h2>" + (status ? '<p class="pm-status">' + status + "</p>" : "") +
+      (p.desc ? "<p>" + esc(p.desc).replace(/\n/g, "<br>") + "</p>" : "") +
+      '<a class="btn btn-red" href="/contact?design=' + encodeURIComponent(p.name) + '">' + (p.status === "Available" ? "Ask about buying this one" : "Request one like this") + " &rarr;</a></div>";
+    body.querySelectorAll("[data-ph]").forEach(function (b) {
+      b.onclick = function () { document.getElementById("pm-img").src = "/photos/" + b.dataset.ph + ".jpg"; body.querySelectorAll("[data-ph]").forEach(function (x) { x.removeAttribute("aria-current"); }); b.setAttribute("aria-current", "true"); };
     });
-  });
+    modal.hidden = false; document.body.style.overflow = "hidden"; modal.querySelector(".modal-x").focus();
+  }
+  function closePiece() { if (modal) { modal.hidden = true; document.body.style.overflow = ""; } }
+  if (modal) {
+    modal.addEventListener("click", function (e) { if (e.target === modal || e.target.closest(".modal-x")) closePiece(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden) closePiece(); });
+  }
+  if ((workGrid || featGrid) && !window.MM_PREVIEW) {
+    fetch("/api/pieces").then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok || !j.pieces.length) return; // keep the "coming soon" cards
+      pieces = j.pieces; j.collections.forEach(function (c) { cols[c.id] = c.name; });
+      if (featGrid) {
+        var feat = pieces.filter(function (p) { return p.featured; });
+        featGrid.innerHTML = (feat.length ? feat : pieces).slice(0, 4).map(card).join(""); bindCards(featGrid);
+      }
+      if (workGrid) {
+        workGrid.innerHTML = pieces.map(card).join(""); bindCards(workGrid);
+        var used = j.collections.filter(function (c) { return pieces.some(function (p) { return p.collection === c.id; }); });
+        if (pieces.some(function (p) { return !cols[p.collection]; }) && used.length) used.push({ id: "none", name: "More" });
+        var filters = document.getElementById("filters");
+        if (used.length > 1 || (used.length === 1 && used[0].id !== "none")) {
+          filters.innerHTML = '<button class="chip" type="button" data-filter="all" aria-pressed="true">All</button>' +
+            used.map(function (c) { return '<button class="chip" type="button" data-filter="' + esc(c.id) + '" aria-pressed="false">' + esc(c.name) + "</button>"; }).join("");
+          filters.hidden = false;
+          filters.querySelectorAll(".chip").forEach(function (c) {
+            c.onclick = function () {
+              var f = c.dataset.filter;
+              filters.querySelectorAll(".chip").forEach(function (x) { x.setAttribute("aria-pressed", x === c); });
+              workGrid.querySelectorAll(".piece").forEach(function (el) { var col = cols[el.dataset.col] ? el.dataset.col : "none"; el.hidden = f !== "all" && col !== f; });
+            };
+          });
+        }
+      }
+    }).catch(function () {});
+  }
+
+  // "Request one like this" arrives as /contact?design=Name
+  var design = new URLSearchParams(location.search).get("design");
+  var msgBox = document.getElementById("f-msg");
+  if (design && msgBox && !msgBox.value) msgBox.value = "I'm interested in a handle like “" + design.slice(0, 80) + "” from your work page.\n\n";
 
   // Request form
   var form = document.getElementById("req-form");
