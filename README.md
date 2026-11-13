@@ -1,6 +1,6 @@
 # Mad Max Custom Knife Handles website
 
-Static site on Cloudflare Pages, with Pages Functions for the request form and a private admin page where Joseph adds his own designs.
+Static site on Cloudflare Pages, with Pages Functions for the request form and a private admin page where Joseph and Mandi Jo add their own designs.
 
 - `site/` — pages and assets (Cloudflare Pages output directory, no build command). `site/admin/` is the admin page.
 - `functions/api/request.js` — emails a custom handle request to Mad Max through Resend, blade photos attached, reply-to = customer
@@ -9,7 +9,7 @@ Static site on Cloudflare Pages, with Pages Functions for the request form and a
 - `lib/store.js` — shared storage and sign-in check
 - `build.py` — edit the CONTENT block (phone, hours, Facebook link), then `python3 build.py`; `--preview` writes demo files to `preview/`
 
-## How Joseph updates the site
+## How Joseph and Mandi Jo update the site
 Go to `/admin` → enter his email → type the code Cloudflare emails him → he's in (stays signed in for the session length set in Access).
 - **Designs:** "+ Add a new design" → photos (up to 4, first is the cover), name, collection, blade type, price, status (Showcase / Available / Sold), "Show on the home page", description → "Add to the site". Live right away. Edit, delete, and up/down arrows to reorder.
 - **Collections:** the filter buttons on The Work page (starts with Patriotic and Outdoors). Add, rename, reorder, remove. Removing one never deletes designs; they move to Uncategorized.
@@ -24,16 +24,16 @@ Until the first design is added, the site shows the "Photo coming soon" cards.
 6. Admin sign-in (Zero Trust, free plan):
    - Zero Trust → Settings → Authentication: One-time PIN is on by default.
    - Access → Applications → Add → Self-hosted. Domain: the site's domain, paths `admin` and `api/admin` (add both as destinations). Session: 1 month.
-   - Policy "Owners": Allow, Include → Emails: Joseph's Gmail (and yours).
+   - Policy "Owners": Allow, Include → Emails: Joseph's Gmail, Mandi Jo's email (and yours).
    - Copy the application's **AUD tag**.
    - Pages variables: `ACCESS_TEAM_DOMAIN` (e.g. `yourteam.cloudflareaccess.com`), `ACCESS_AUD` (the AUD tag), `ADMIN_EMAILS` (same emails, comma-separated).
    - The admin API checks the Access token itself as well, so it stays locked even if the Access rule is changed by mistake. Do not set `ACCESS_CERTS_URL` in production (local testing only).
    - Note: `*.pages.dev` preview URLs are not covered by an Access app on the custom domain; the admin API still refuses them (no valid token), so nothing is exposed.
 
-The form reports success only after the email is accepted by Resend; otherwise it tells the visitor to call 717-916-0074. The Gmail app on Joseph's phone gives the instant phone alert.
+The form reports success only after the email is accepted by Resend; otherwise it tells the visitor to call 717-916-0074. The Gmail app on their phones gives the instant phone alert.
 
 ## Before launch
 - [ ] Facebook group link (`FACEBOOK_URL` in build.py)
 - [ ] Final domain (`SITE_URL`) and `EMAIL_FROM`
-- [ ] Confirm "Three steps" wording with Joseph
+- [ ] Confirm "Three steps" wording with Joseph and Mandi Jo
 - [ ] Swap in real handle photos

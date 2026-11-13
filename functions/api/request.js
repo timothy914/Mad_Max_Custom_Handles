@@ -12,7 +12,6 @@ const FAIL = "We couldn't send your request. Please call 717-916-0074 or email m
 const MAX_PHOTOS = 5;
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 const MAX_TOTAL_BYTES = 25 * 1024 * 1024;
-const BLADES = ["Fixed blade", "Folding", "Kitchen", "Hunting / skinning", "Other"];
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -55,7 +54,6 @@ export async function onRequestPost({ request, env }) {
     name: oneLine(fd.get("name"), 80),
     email: oneLine(fd.get("email"), 120),
     phone: oneLine(fd.get("phone"), 20),
-    blade: BLADES.includes(fd.get("blade")) ? fd.get("blade") : "",
     material: oneLine(fd.get("material"), 120),
     message: clean(fd.get("message"), 2000),
   };
@@ -93,7 +91,7 @@ export async function onRequestPost({ request, env }) {
   const lines = [
     `New custom handle request (${ref})`, "",
     `Name: ${req.name}`, `Email: ${req.email}`, `Phone: ${req.phone || "not given"}`,
-    `Blade type: ${req.blade || "not given"}`, `Handle material: ${req.material || "not given"}`,
+    `Handle material: ${req.material || "not given"}`,
     `Photos attached: ${attachments.length}`, "", "Message:", req.message, "",
     "Reply to this email to answer the customer directly.",
   ];
@@ -106,7 +104,7 @@ export async function onRequestPost({ request, env }) {
       from: env.EMAIL_FROM,
       to: String(env.ALERT_EMAIL_TO || "").split(",").map((s) => s.trim()).filter(Boolean),
       reply_to: req.email,
-      subject: `Handle request from ${req.name}${req.blade ? " · " + req.blade : ""} (${ref})`,
+      subject: `Handle request from ${req.name} (${ref})`,
       text: lines.join("\n"),
       attachments,
     }),

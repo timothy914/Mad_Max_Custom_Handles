@@ -227,3 +227,11 @@ textarea{min-height:150px;resize:vertical}
 .pm-status{font:600 15px var(--cond);letter-spacing:.14em;text-transform:uppercase;color:var(--white)}
 .modal-x{position:absolute;top:10px;right:10px;z-index:2;width:40px;height:40px;border-radius:50%;border:1px solid #444;background:#000a;color:#fff;font-size:22px;cursor:pointer}
 @media (max-width:760px){.modal{padding:0}.modal-box{grid-template-columns:1fr;max-height:100vh;height:100%}.pm-photo{grid-row:auto;min-height:0}.pm-thumbs,.pm-text{grid-column:1}.pm-text{padding:22px 20px 34px}}
+
+/* home collection tiles */
+a.piece.coll{text-decoration:none;transition:border-color .2s}
+a.piece.coll:hover{border-color:var(--steel)}
+a.piece.coll .ph img{transition:transform .4s}
+a.piece.coll:hover .ph img{transform:scale(1.04)}
+.piece .count{font:600 12px/1 var(--cond);letter-spacing:.16em;text-transform:uppercase;color:var(--red2)}
+#collections-grid.live{grid-template-columns:repeat(auto-fit,minmax(220px,280px));justify-content:center}

@@ -10,41 +10,29 @@ import sys, pathlib, shutil, base64
 ROOT = pathlib.Path(__file__).parent
 
 # ---------------- CONTENT ----------------
-OWNER = "Joseph James"
+OWNERS = [("Joseph James", "Owner"), ("Mandi Jo", "Co-Owner")]
 PHONE_DISPLAY = "717-916-0074"
 TEL = "tel:+17179160074"
 EMAIL = "madmaxcustomknifehandles@gmail.com"
 FACEBOOK_URL = "https://www.facebook.com/groups/REPLACE-ME"  # TODO: Mad Max: Custom Knife Handles Facebook group link
 FACEBOOK_LABEL = "Mad Max: Custom Knife Handles Facebook group"
-LOCATION = "York, Pennsylvania"
+LOCATION = "Dover, Pennsylvania"
 HOURS = [("Monday&ndash;Saturday", "9:00 AM &ndash; 5:00 PM"), ("Sunday", "Closed")]
 HOURS_NOTE = "Online requests can be sent 24 hours a day."
 SITE_URL = "https://madmaxcustomknifehandles.com"  # TODO: final domain (used for social previews)
 
-BLADE_TYPES = ["Fixed blade", "Folding", "Kitchen", "Hunting / skinning", "Other"]
 
-# Each project: name, category (must match a filter), material, photo (file in site/assets/work/, or None)
-CATEGORIES = ["Fixed blade", "Folding", "Kitchen"]
-PROJECTS = [
-    ("Handle photo coming soon", "Fixed blade", "Paper micarta", None, "drop"),
-    ("Handle photo coming soon", "Folding", "Paper micarta", None, "folder"),
-    ("Handle photo coming soon", "Kitchen", "Paper micarta", None, "chef"),
-    ("Handle photo coming soon", "Fixed blade", "Paper micarta", None, "bowie"),
-    ("Handle photo coming soon", "Kitchen", "Paper micarta", None, "chef"),
-    ("Handle photo coming soon", "Folding", "Paper micarta", None, "folder"),
-    ("Handle photo coming soon", "Fixed blade", "Paper micarta", None, "drop"),
-    ("Handle photo coming soon", "Fixed blade", "Paper micarta", None, "bowie"),
-    ("Handle photo coming soon", "Folding", "Paper micarta", None, "folder"),
-]
+# "Coming soon" cards shown until the first design is added through /admin: (line-art style)
+PLACEHOLDERS = ["drop", "folder", "chef", "bowie", "chef", "folder", "drop", "bowie", "folder"]
 # ------------------------------------------
 
 PAGES = [  # slug, nav label, title, description
-    ("home", "Home", "Mad Max Custom Knife Handles | Paper micarta handles, York, PA",
-     "Handcrafted paper micarta knife handles from York, Pennsylvania. Custom handles for knife makers, enthusiasts, and collectors."),
+    ("home", "Home", "Mad Max Custom Knife Handles | Paper micarta handles, Dover, PA",
+     "Handcrafted paper micarta knife handles from Dover, Pennsylvania. Custom handles for knife makers, enthusiasts, and collectors."),
     ("work", "The Work", "The Work | Mad Max Custom Knife Handles",
-     "Custom paper micarta handles from the bench at Mad Max Custom Knife Handles, York, PA."),
+     "Custom paper micarta handles from the bench at Mad Max Custom Knife Handles, Dover, PA."),
     ("contact", "Contact", "Request a Custom Handle | Mad Max Custom Knife Handles",
-     "Tell Mad Max Custom Knife Handles about your blade and the handle you want. York, PA. Call 717-916-0074."),
+     "Tell Mad Max Custom Knife Handles about your blade and the handle you want. Dover, PA. Call 717-916-0074."),
 ]
 
 I = {  # 24px line icons
@@ -79,15 +67,9 @@ def knife(kind):
             f'stroke-linejoin="round" aria-hidden="true">{KNIVES[kind]}</svg>')
 
 
-def piece(p, asset):
-    name, cat, mat, photo, kind = p
-    if photo:
-        ph = f'<img src="{asset}work/{photo}" alt="{name}, {mat.lower()} handle" loading="lazy">'
-    else:
-        ph = f'<span class="soon">Photo coming soon</span>{knife(kind)}'
-    return (f'<article class="piece" data-cat="{cat}"><div class="ph">{ph}</div>'
-            f'<div class="meta"><h3>{name}</h3><div class="tags"><span class="tag">{mat}</span>'
-            f'<span class="tag">{cat}</span></div></div></article>')
+def placeholder(kind):
+    return (f'<article class="piece"><div class="ph"><span class="soon">Photo coming soon</span>{knife(kind)}</div>'
+            f'<div class="meta"><h3>Coming soon</h3><div class="tags"><span class="tag">Paper micarta</span></div></div></article>')
 
 
 def head_block(kicker, title, center=True):
@@ -100,12 +82,12 @@ def body_home(asset):
              ("knife", "Knife Enthusiasts", "Give a knife you already own a handle that&rsquo;s yours alone."),
              ("case", "Collectors &amp; Others", "One-off pieces, replacements, and everything in between. If it needs a handle, ask.")]
     cards_html = "".join(f'<div class="card">{icon(i)}<h3>{t}</h3><p>{d}</p></div>' for i, t, d in cards)
-    featured = "".join(piece(p, asset) for p in PROJECTS[:4]).replace('<h3>Handle photo coming soon</h3>', '<h3>Coming soon</h3>')
+    featured = "".join(placeholder(k) for k in PLACEHOLDERS[:4])
     return f'''
 <section class="hero"><div class="wrap">
   <div class="hero-logo"><img src="{asset}logo-720.webp" alt="Mad Max Custom Knife Handles logo: a bull skull between two curved blades" width="720" height="754"></div>
   <div>
-    <p class="kicker">Custom knife handles &middot; York, Pennsylvania</p>
+    <p class="kicker">Custom knife handles &middot; Dover, Pennsylvania</p>
     <h1>Handcrafted.<br>Built to be unique.</h1>
     <p class="lead">Custom handles for knife makers, knife enthusiasts, and anyone who needs one done right.</p>
     <div class="btn-row"><a class="btn" href="{{work}}">See the work</a><a class="btn btn-red" href="{{contact}}">Request a custom handle &rarr;</a></div>
@@ -121,14 +103,14 @@ def body_home(asset):
   <div class="cards3">{cards_html}</div>
 </div></section>
 <section class="section alt"><div class="wrap">
-  {head_block("Featured work", "From the Bench")}
-  <div class="grid four" id="featured-grid">{featured}</div>
+  {head_block("Our collections", "From the Bench")}
+  <div class="grid four" id="collections-grid">{featured}</div>
   <p class="center" style="margin:36px 0 0"><a class="btn btn-sm" href="{{work}}">See all work &rarr;</a></p>
 </div></section>
 <section class="section"><div class="wrap">
   {head_block("How it works", "Three Steps to a Custom Handle")}
   <div class="steps">
-    <div><span class="num">I</span><h3>Tell Us About Your Blade</h3><p>Send the blade type, size, and any photos you have.</p></div>
+    <div><span class="num">I</span><h3>Tell Us About Your Blade</h3><p>Send the size, the look you&rsquo;re after, and any photos you have.</p></div>
     <div><span class="num">II</span><h3>We Design the Handle</h3><p>Shape, fit, and material are worked out with you before anything is cut.</p></div>
     <div><span class="num">III</span><h3>We Build and Ship It</h3><p>Your handle is made to order and sent back to you.</p></div>
   </div>
@@ -143,12 +125,11 @@ def body_work(asset):
 </div></section>
 <section class="section"><div class="wrap">
   <div class="filters" id="filters" role="group" aria-label="Filter by collection" hidden></div>
-  <div class="grid" id="work-grid">{"".join(piece(p, asset) for p in PROJECTS)}</div>
+  <div class="grid" id="work-grid">{"".join(placeholder(k) for k in PLACEHOLDERS)}</div>
 </div></section>'''
 
 
 def body_contact(asset):
-    opts = "".join(f"<option>{b}</option>" for b in BLADE_TYPES)
     hours = "".join(f"<span>{d}</span><span>{h}</span>" for d, h in HOURS)
     return f'''
 <section class="page-hero"><div class="wrap">
@@ -164,8 +145,7 @@ def body_contact(asset):
         <div><label for="f-name">Name <span class="req">*</span></label><input id="f-name" name="name" required maxlength="80" autocomplete="name" placeholder="Your name"></div>
         <div><label for="f-email">Email <span class="req">*</span></label><input id="f-email" name="email" type="email" required maxlength="120" autocomplete="email" placeholder="you@example.com"></div>
         <div><label for="f-phone">Phone <span class="opt">(optional)</span></label><input id="f-phone" name="phone" type="tel" maxlength="20" autocomplete="tel" placeholder="Best number to reach you"></div>
-        <div><label for="f-blade">Blade type <span class="opt">(optional)</span></label><select id="f-blade" name="blade"><option value="">Select blade type</option>{opts}</select></div>
-        <div class="full"><label for="f-mat">Handle material preference <span class="opt">(optional)</span></label><input id="f-mat" name="material" maxlength="120" placeholder="Tell us what you have in mind"><p class="hint">Paper micarta is our specialty.</p></div>
+        <div><label for="f-mat">Handle material preference <span class="opt">(optional)</span></label><input id="f-mat" name="material" maxlength="120" placeholder="Tell us what you have in mind"><p class="hint">Paper micarta is our specialty.</p></div>
         <div class="full"><label for="f-msg">Message <span class="req">*</span></label><textarea id="f-msg" name="message" required maxlength="2000" placeholder="Blade size, how you&rsquo;ll use it, the look you&rsquo;re after&hellip;"></textarea></div>
         <div class="full"><span class="label-like"><label for="f-photos">Photos <span class="opt">(optional)</span></label></span>
           <div class="drop" id="drop">{icon("upload")}<div><strong>Upload photos of your blade</strong> or drag them here</div><div class="hint">Up to 5 photos (JPG, PNG, HEIC). Large photos are resized before sending.</div>
@@ -180,7 +160,7 @@ def body_contact(asset):
     <div id="form-success" class="success" hidden>
       <div class="check">&#10003;</div>
       <h2>Request received.</h2>
-      <p>Thanks for reaching out. {OWNER.split()[0]} will get back to you to talk through your handle.</p>
+      <p>Thanks for reaching out. We&rsquo;ll get back to you to talk through your handle.</p>
       <p id="success-ref" class="ref"></p>
       <p><a class="btn btn-sm" href="#" id="send-another">Send another request</a></p>
       <p id="demo-flag" class="hint" hidden>Preview only: nothing was sent. On the live site this request is emailed to Mad Max right away.</p>
@@ -190,7 +170,7 @@ def body_contact(asset):
     <div class="panel info">
       <h3>Get in Touch</h3>
       <ul>
-        <li><span class="ico">{icon("user")}</span><div><small>Contact</small><span class="v">{OWNER}, Owner</span></div></li>
+        <li><span class="ico">{icon("user")}</span><div><small>Contact</small>{"".join(f'<span class="v" style="display:block">{n}, {r}</span>' for n, r in OWNERS)}</div></li>
         <li><span class="ico">{icon("phone")}</span><div><small>Phone</small><a class="v" href="{TEL}">{PHONE_DISPLAY}</a></div></li>
         <li><span class="ico">{icon("mail")}</span><div><small>Email</small><a class="v" href="mailto:{EMAIL}" style="word-break:break-all">{EMAIL}</a></div></li>
         <li><span class="ico">{icon("pin")}</span><div><small>Location</small><span class="v">{LOCATION}</span><p class="muted">Packaged and shipped in-house.</p></div></li>
@@ -210,7 +190,7 @@ def cta(slug):
     if slug == "contact":
         return ""
     t, s = (("Got a Blade That Needs a Handle?", "Tell us what you&rsquo;re working with and we&rsquo;ll take it from there.")
-            if slug == "home" else ("Have a Blade in Mind?", "Send us the details and we&rsquo;ll talk through the handle."))
+            if slug == "home" else ("Have a Design in Mind?", "Send us the details and we&rsquo;ll talk through the handle."))
     return f'''<section class="band cta"><div class="wrap">
   <div><h2>{t}</h2><p>{s}</p></div>
   <a class="btn btn-red" href="{{contact}}">Request a custom handle &rarr;</a>
@@ -236,7 +216,7 @@ def chrome(slug, inner, links, asset, preview):
 <footer class="site-footer"><div class="wrap">
   <div class="foot">
     <div class="foot-brand"><img src="{asset}logo-360.webp" alt="" width="96" height="100" loading="lazy"><div><b>MAD MAX</b><small>Custom Knife Handles</small>
-      <p>Handcrafted. Built to be unique.<br>{LOCATION}<br>Owner: {OWNER}</p></div></div>
+      <p>Handcrafted. Built to be unique.<br>{LOCATION}<br>{"<br>".join(f"{r}: {n}" for n, r in OWNERS)}</p></div></div>
     <div><h4>Explore</h4><ul>{"".join(f'<li><a href="{links[s]}">{l}</a></li>' for s, l, _, _ in PAGES)}</ul></div>
     <div><h4>Get in touch</h4><ul>
       <li><a class="row" href="{TEL}"><span class="ico">{icon("phone")}</span>{PHONE_DISPLAY}</a></li>

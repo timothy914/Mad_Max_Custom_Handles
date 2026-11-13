@@ -4,7 +4,7 @@
   "use strict";
   var $ = function (s, el) { return (el || document).querySelector(s); };
   var app = $("#admin");
-  var state = { pieces: [], collections: [], bladeTypes: [], statuses: [], maxPhotos: 4, email: "" };
+  var state = { pieces: [], collections: [], statuses: [], maxPhotos: 4, email: "" };
 
   // ---------- data layer ----------
   var demoPhotos = {}; // photoId -> object URL
@@ -32,14 +32,14 @@
     var ok = function (x) { return new Promise(function (r) { setTimeout(function () { r(Object.assign({ ok: true }, x)); }, 250); }); };
     var fail = function (m) { return Promise.reject(new Error(m)); };
     function fields(fd) {
-      return { name: (fd.get("name") || "").trim(), collection: fd.get("collection") || "", blade: fd.get("blade") || "",
+      return { name: (fd.get("name") || "").trim(), collection: fd.get("collection") || "",
         material: (fd.get("material") || "").trim() || "Paper micarta", price: (fd.get("price") || "").trim(),
-        status: fd.get("status") || "Showcase", featured: fd.get("featured") === "on", desc: (fd.get("desc") || "").trim() };
+        status: fd.get("status") || "Showcase", desc: (fd.get("desc") || "").trim() };
     }
     function photos(fd) { return fd.getAll("thumb").map(function (b) { var id = uid(); demoPhotos[id] = URL.createObjectURL(b); return id; }); }
     return {
       load: function () { return ok({ email: "madmaxcustomknifehandles@gmail.com", pieces: db.pieces.slice(), collections: db.collections.slice(),
-        bladeTypes: ["Fixed blade", "Folding", "Kitchen", "Hunting / skinning", "Other"], statuses: ["Showcase", "Available", "Sold"], maxPhotos: 4 }); },
+        statuses: ["Showcase", "Available", "Sold"], maxPhotos: 4 }); },
       save: function (id, fd) {
         var f = fields(fd); if (!f.name) return fail("Give the design a name.");
         if (!id) { var p = photos(fd); if (!p.length) return fail("Add at least one photo.");
@@ -102,7 +102,7 @@
       return '<li class="row" data-id="' + p.id + '">' +
         '<img src="' + thumbURL(p.photos[0]) + '" alt="">' +
         '<div class="row-main"><b>' + esc(p.name) + "</b><small>" + esc(colName(p.collection)) +
-        (p.status !== "Showcase" ? " · " + esc(p.status) : "") + (p.price ? " · " + esc(p.price) : "") + (p.featured ? ' · <em>On home page</em>' : "") + "</small></div>" +
+        (p.status !== "Showcase" ? " · " + esc(p.status) : "") + (p.price ? " · " + esc(p.price) : "") + "</small></div>" +
         '<div class="row-act"><button class="mini" data-move="-1" aria-label="Move up"' + (i === 0 ? " disabled" : "") + '>&uarr;</button>' +
         '<button class="mini" data-move="1" aria-label="Move down"' + (i === state.pieces.length - 1 ? " disabled" : "") + '>&darr;</button>' +
         '<button class="btn btn-sm" data-edit>Edit</button></div></li>';
@@ -135,7 +135,7 @@
         '<button class="mini" data-move="1" aria-label="Move down"' + (i === state.collections.length - 1 ? " disabled" : "") + '>&darr;</button>' +
         '<button class="mini x" data-del aria-label="Remove collection">&times;</button></div></li>';
     }).join("");
-    return '<p class="hint">Collections are the filter buttons on The Work page, like Patriotic or Outdoors. Rename one by typing over it. Removing a collection keeps its designs; they move to Uncategorized.</p>' +
+    return '<p class="hint">Collections show on the home page and as filter buttons on The Work page. Each one uses the cover photo of its first design, so put your best piece at the top of the Designs list. Rename a collection by typing over it. Removing one keeps its designs; they move to Uncategorized.</p>' +
       '<ul class="rows">' + rows + "</ul>" +
       '<div class="add-col"><input id="new-col" maxlength="40" placeholder="New collection name"><button class="btn btn-sm" id="add-col">Add</button></div>' +
       '<button class="btn btn-red big" id="save-cols">Save collections</button>';
@@ -182,7 +182,7 @@
   // ---------- editor ----------
   function editor(p) {
     var isNew = !p;
-    p = p || { name: "", collection: "", blade: "", material: "Paper micarta", price: "", status: "Showcase", featured: false, desc: "", photos: [] };
+    p = p || { name: "", collection: "", material: "Paper micarta", price: "", status: "Showcase", desc: "", photos: [] };
     var items = p.photos.map(function (id) { return { k: id, url: thumbURL(id) }; }); // existing {k} or new {full, thumb, url}
     var opt = function (list, val, blank) {
       return (blank ? '<option value="">' + blank + "</option>" : "") + list.map(function (x) {
@@ -197,14 +197,12 @@
       '<div class="photo-grid" id="pg"></div>' +
       '<label for="e-name">Name <span class="req">*</span></label><input id="e-name" name="name" maxlength="80" required value="' + esc(p.name) + '" placeholder="e.g. Old Glory Bowie">' +
       '<div class="two"><div><label for="e-col">Collection</label><select id="e-col" name="collection">' + opt(state.collections, p.collection, "Uncategorized") + "</select></div>" +
-      '<div><label for="e-blade">Blade type</label><select id="e-blade" name="blade">' + opt(state.bladeTypes, p.blade, "Not listed") + "</select></div></div>" +
-      '<div class="two"><div><label for="e-mat">Material</label><input id="e-mat" name="material" maxlength="60" value="' + esc(p.material) + '"></div>' +
-      '<div><label for="e-price">Price <span class="opt">(optional)</span></label><input id="e-price" name="price" maxlength="30" value="' + esc(p.price) + '" placeholder="e.g. $85"></div></div>' +
+      '<div><label for="e-mat">Material</label><input id="e-mat" name="material" maxlength="60" value="' + esc(p.material) + '"></div></div>' +
+      '<label for="e-price">Price <span class="opt">(optional)</span></label><input id="e-price" name="price" maxlength="30" value="' + esc(p.price) + '" placeholder="e.g. $85">' +
       "<label>Status</label><div class=\"seg\">" + state.statuses.map(function (s) {
         var help = { Showcase: "Past work", Available: "For sale now", Sold: "Shows a Sold tag" }[s] || "";
         return '<label><input type="radio" name="status" value="' + s + '"' + (p.status === s ? " checked" : "") + "><span>" + s + "<small>" + help + "</small></span></label>";
       }).join("") + "</div>" +
-      '<label class="check"><input type="checkbox" name="featured"' + (p.featured ? " checked" : "") + "> Show on the home page</label>" +
       '<label for="e-desc">Description <span class="opt">(optional)</span></label><textarea id="e-desc" name="desc" maxlength="1200" placeholder="Colors, size, what it was made for…">' + esc(p.desc) + "</textarea>" +
       '<div class="ed-foot"><button class="btn btn-red" type="submit">' + (isNew ? "Add to the site" : "Save changes") + "</button>" +
       '<button class="btn" type="button" id="cancel">Cancel</button>' + (isNew ? "" : '<button class="btn danger" type="button" id="del">Delete design</button>') + "</div></form>";

@@ -1,11 +1,11 @@
 // GET  /api/admin/pieces -> everything the admin page needs
 // POST /api/admin/pieces -> add a design (multipart form)
 import { json, loadPieces, savePieces, loadCollections, readFields, savePhotos, newId,
-  BLADE_TYPES, STATUSES, MAX_PHOTOS, UserError, photoOrder } from "../../../lib/store.js";
+  STATUSES, MAX_PHOTOS, UserError, photoOrder } from "../../../lib/store.js";
 
 export async function onRequestGet({ env, data }) {
   const [pieces, collections] = await Promise.all([loadPieces(env), loadCollections(env)]);
-  return json({ ok: true, email: data.email, pieces, collections, bladeTypes: BLADE_TYPES, statuses: STATUSES, maxPhotos: MAX_PHOTOS });
+  return json({ ok: true, email: data.email, pieces, collections, statuses: STATUSES, maxPhotos: MAX_PHOTOS });
 }
 
 export async function onRequestPost({ request, env }) {

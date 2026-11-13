@@ -10,11 +10,11 @@
   });
 
   // Gallery: designs added through /admin
-  var workGrid = document.getElementById("work-grid"), featGrid = document.getElementById("featured-grid");
+  var workGrid = document.getElementById("work-grid"), colGrid = document.getElementById("collections-grid");
   var modal = document.getElementById("piece-modal"), pieces = [], cols = {};
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function card(p) {
-    var tags = [cols[p.collection], p.blade].filter(Boolean).map(function (t) { return '<span class="tag">' + esc(t) + "</span>"; }).join("");
+    var tags = [cols[p.collection], p.material].filter(Boolean).map(function (t) { return '<span class="tag">' + esc(t) + "</span>"; }).join("");
     var badge = p.status === "Sold" ? '<span class="badge sold">Sold</span>' : p.status === "Available" ? '<span class="badge">Available' + (p.price ? " &middot; " + esc(p.price) : "") + "</span>" : "";
     return '<article class="piece live" data-col="' + esc(p.collection || "none") + '"><button type="button" class="ph" data-id="' + p.id + '" aria-label="View ' + esc(p.name) + '">' +
       '<img src="/photos/' + p.photos[0] + '-th.jpg" alt="' + esc(p.name) + '" loading="lazy">' + badge + "</button>" +
@@ -24,7 +24,7 @@
   function openPiece(id) {
     var p = pieces.find(function (x) { return x.id === id; }); if (!p || !modal) return;
     var body = modal.querySelector(".pm-body");
-    var meta = [cols[p.collection], p.blade, p.material].filter(Boolean).map(esc).join(" &middot; ");
+    var meta = [cols[p.collection], p.material].filter(Boolean).map(esc).join(" &middot; ");
     var status = p.status === "Sold" ? "Sold" : p.status === "Available" ? "Available" + (p.price ? " &middot; " + esc(p.price) : "") : (p.price ? esc(p.price) : "");
     body.innerHTML = '<div class="pm-photo"><img id="pm-img" src="/photos/' + p.photos[0] + '.jpg" alt="' + esc(p.name) + '"></div>' +
       (p.photos.length > 1 ? '<div class="pm-thumbs">' + p.photos.map(function (ph, i) { return '<button type="button" data-ph="' + ph + '"' + (i ? "" : ' aria-current="true"') + '><img src="/photos/' + ph + '-th.jpg" alt="Photo ' + (i + 1) + '"></button>'; }).join("") + "</div>" : "") +
@@ -41,13 +41,17 @@
     modal.addEventListener("click", function (e) { if (e.target === modal || e.target.closest(".modal-x")) closePiece(); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden) closePiece(); });
   }
-  if ((workGrid || featGrid) && !window.MM_PREVIEW) {
+  if ((workGrid || colGrid) && !window.MM_PREVIEW) {
     fetch("/api/pieces").then(function (r) { return r.json(); }).then(function (j) {
       if (!j.ok || !j.pieces.length) return; // keep the "coming soon" cards
       pieces = j.pieces; j.collections.forEach(function (c) { cols[c.id] = c.name; });
-      if (featGrid) {
-        var feat = pieces.filter(function (p) { return p.featured; });
-        featGrid.innerHTML = (feat.length ? feat : pieces).slice(0, 4).map(card).join(""); bindCards(featGrid);
+      if (colGrid) { // home: one tile per collection that has designs (cover = its first design)
+        var tiles = j.collections.map(function (c) {
+          var mine = pieces.filter(function (p) { return p.collection === c.id; });
+          return mine.length ? '<a class="piece coll" href="/work?collection=' + encodeURIComponent(c.id) + '"><div class="ph"><img src="/photos/' + mine[0].photos[0] + '-th.jpg" alt="" loading="lazy"></div>' +
+            '<div class="meta"><h3>' + esc(c.name) + '</h3><span class="count">' + mine.length + " design" + (mine.length === 1 ? "" : "s") + " &rarr;</span></div></a>" : "";
+        }).join("");
+        if (tiles) { colGrid.innerHTML = tiles; colGrid.classList.add("live"); }
       }
       if (workGrid) {
         workGrid.innerHTML = pieces.map(card).join(""); bindCards(workGrid);
@@ -65,6 +69,9 @@
               workGrid.querySelectorAll(".piece").forEach(function (el) { var col = cols[el.dataset.col] ? el.dataset.col : "none"; el.hidden = f !== "all" && col !== f; });
             };
           });
+          var want = new URLSearchParams(location.search).get("collection");
+          var chip = want && filters.querySelector('.chip[data-filter="' + want.replace(/[^a-z0-9]/g, "") + '"]');
+          if (chip) chip.click();
         }
       }
     }).catch(function () {});
