@@ -235,3 +235,8 @@ a.piece.coll .ph img{transition:transform .4s}
 a.piece.coll:hover .ph img{transform:scale(1.04)}
 .piece .count{font:600 12px/1 var(--cond);letter-spacing:.16em;text-transform:uppercase;color:var(--red2)}
 #collections-grid.live{grid-template-columns:repeat(auto-fit,minmax(220px,280px));justify-content:center}
+/* photos always fill their frame (Safari ignores grid sizing inside <button>) */
+.piece .ph{display:block}
+.piece .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.piece .ph svg{position:absolute;left:11%;top:50%;transform:translateY(-50%)}
+.piece .ph .soon,.piece .ph .badge{z-index:1}

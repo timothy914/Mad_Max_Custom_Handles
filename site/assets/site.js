@@ -13,9 +13,10 @@
   var workGrid = document.getElementById("work-grid"), colGrid = document.getElementById("collections-grid");
   var modal = document.getElementById("piece-modal"), pieces = [], cols = {};
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function money(v) { v = String(v || "").trim(); return /^\d/.test(v) ? "$" + v : v; } // "35.00" -> "$35.00"
   function card(p) {
     var tags = [cols[p.collection], p.material].filter(Boolean).map(function (t) { return '<span class="tag">' + esc(t) + "</span>"; }).join("");
-    var badge = p.status === "Sold" ? '<span class="badge sold">Sold</span>' : p.status === "Available" ? '<span class="badge">Available' + (p.price ? " &middot; " + esc(p.price) : "") + "</span>" : "";
+    var badge = p.status === "Sold" ? '<span class="badge sold">Sold</span>' : p.status === "Available" ? '<span class="badge">Available' + (p.price ? " &middot; " + esc(money(p.price)) : "") + "</span>" : "";
     return '<article class="piece live" data-col="' + esc(p.collection || "none") + '"><button type="button" class="ph" data-id="' + p.id + '" aria-label="View ' + esc(p.name) + '">' +
       '<img src="/photos/' + p.photos[0] + '-th.jpg" alt="' + esc(p.name) + '" loading="lazy">' + badge + "</button>" +
       '<div class="meta"><h3>' + esc(p.name) + '</h3><div class="tags">' + tags + "</div></div></article>";
@@ -25,7 +26,7 @@
     var p = pieces.find(function (x) { return x.id === id; }); if (!p || !modal) return;
     var body = modal.querySelector(".pm-body");
     var meta = [cols[p.collection], p.material].filter(Boolean).map(esc).join(" &middot; ");
-    var status = p.status === "Sold" ? "Sold" : p.status === "Available" ? "Available" + (p.price ? " &middot; " + esc(p.price) : "") : (p.price ? esc(p.price) : "");
+    var status = p.status === "Sold" ? "Sold" : p.status === "Available" ? "Available" + (p.price ? " &middot; " + esc(money(p.price)) : "") : (p.price ? esc(money(p.price)) : "");
     body.innerHTML = '<div class="pm-photo"><img id="pm-img" src="/photos/' + p.photos[0] + '.jpg" alt="' + esc(p.name) + '"></div>' +
       (p.photos.length > 1 ? '<div class="pm-thumbs">' + p.photos.map(function (ph, i) { return '<button type="button" data-ph="' + ph + '"' + (i ? "" : ' aria-current="true"') + '><img src="/photos/' + ph + '-th.jpg" alt="Photo ' + (i + 1) + '"></button>'; }).join("") + "</div>" : "") +
       '<div class="pm-text"><p class="kicker">' + meta + '</p><h2 id="pm-title">' + esc(p.name) + "</h2>" + (status ? '<p class="pm-status">' + status + "</p>" : "") +
