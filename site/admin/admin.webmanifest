@@ -1,0 +1,27 @@
+{
+ "background_color": "#050505",
+ "theme_color": "#050505",
+ "display": "standalone",
+ "icons": [
+  {
+   "src": "/assets/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "/assets/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "/assets/icon-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ],
+ "name": "Mad Max \u00b7 Manage Designs",
+ "short_name": "MM Designs",
+ "start_url": "/admin/",
+ "scope": "/admin/"
+}
