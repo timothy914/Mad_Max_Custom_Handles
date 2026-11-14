@@ -10,6 +10,7 @@ export async function onRequest(ctx) {
   } catch (e) {
     if (e instanceof UserError) return json({ ok: false, error: e.message }, 422);
     console.error(e);
-    return json({ ok: false, error: "Something went wrong saving that. Please try again." }, 500);
+    if (/binding missing/.test(e.message)) return json({ ok: false, error: "Setup issue: the site's storage (WORK) isn't connected. Add the WORK binding in Cloudflare and redeploy." }, 500);
+    return json({ ok: false, error: "Something went wrong. Please try again." }, 500);
   }
 }
